@@ -6,11 +6,11 @@ const UserPollPage = () => {
   const { userSelections } = useContext(DishesContext);
   const navigate=useNavigate();
 
+// Handle Logout Functinality
   const handleLogout = () => {
     localStorage.removeItem("userSelections");
     localStorage.removeItem("username");
-
-   navigate("/");
+    navigate("/");
   };
   return (
     <div className="container mx-auto px-4 py-8">
@@ -60,7 +60,7 @@ const UserPollPage = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                    {selection.points} points
+                  {selection.rank === 1 ? '30' : selection.rank === 2 ? '20' : '10'} points
                   </span>
                 </td>
               </tr>

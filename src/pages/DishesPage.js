@@ -15,6 +15,7 @@ const DishesPage = () => {
     fetchData();
   }, [currentPage]);
 
+  // Fetch data from API
   const fetchData = async () => {
     try {
       const response = await axios.get(
@@ -32,10 +33,12 @@ const DishesPage = () => {
     }
   };
 
+  // Handle page change
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
+  // Handle dish selection
   const handleDishSelect = (selectedDish) => {
     setSelectedDishes((prevSelected) => {
       const existingIndex = prevSelected.findIndex(
@@ -51,8 +54,9 @@ const DishesPage = () => {
     });
   };
 
+  // Handle continue button click
   const handleContinue = () => {
-    localStorage.setItem("userSelections", JSON.stringify([]));
+    localStorage.setItem("userSelections", JSON.stringify(selectedDishes));
     navigate("/user-poll");
   };
 

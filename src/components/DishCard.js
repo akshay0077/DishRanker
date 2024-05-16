@@ -1,42 +1,68 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
+
+import toast, { Toaster } from "react-hot-toast";
+
 import { DishesContext } from "../contexts/DishesContext";
 import { AuthContext } from "../contexts/AuthContext";
-
 
 const DishCard = ({ dish, onSelect }) => {
   const { userSelections, setUserSelections } = useContext(DishesContext);
   const { user } = useContext(AuthContext);
 
   const [selectedRank, setSelectedRank] = useState(null);
+  const [totalRanksSelected, setTotalRanksSelected] = useState(0);
+
+  useEffect(() => {
+    // Count the total number of ranks selected across all dish cards
+    const totalRanks = userSelections.reduce((acc, selection) => {
+      return acc + (selection.rank ? 1 : 0);
+    }, 0);
+    setTotalRanksSelected(totalRanks);
+  }, [userSelections]);
 
   const handleSelect = (rank) => {
-    const rankPoints = {
-      1: 30,
-      2: 20,
-      3: 10,
-    };
+    try {
+      const rankPoints = {
+        1: 30,
+        2: 20,
+        3: 10,
+      };
 
-    // Check if the dish is already selected
-    const isAlreadySelected = userSelections.find(
-      (selectedDish) => selectedDish.rank === rank
-    );
-
-    // If the dish is already selected, remove it from the selections
-    if (isAlreadySelected) {
-      const updatedSelections = userSelections.filter(
-        (selectedDish) => selectedDish.id !== dish.id
+      const isAlreadySelected = userSelections.find(
+        (selectedDish) =>
+          selectedDish.rank === rank && selectedDish.id === dish.id
       );
-      setUserSelections(updatedSelections);
-      setSelectedRank(null);
-      onSelect(null); // Deselect the dish
-    } else {     
-        // Remove any previous selection for the same rank
-        const updatedSelections = userSelections.filter(
-          (selectedDish) => selectedDish.rank !== rank
-        );
-        setUserSelections([...updatedSelections, { ...dish, rank, username: user.username }]);
-        setSelectedRank(rank);
-        onSelect({ ...dish, rank, points: rankPoints[rank] });
+
+      // If the dish is already selected, remove it from the selections
+      if (isAlreadySelected) {
+        const updatedSelections = userSelections.map((selectedDish) => {
+          if (selectedDish.id === dish.id) {
+            return { ...selectedDish, rank: null };
+          }
+          return selectedDish;
+        });
+        setUserSelections(updatedSelections);
+        setSelectedRank(null);
+        onSelect(null);
+      } else {
+        if (totalRanksSelected < 3) {
+          const updatedSelections = userSelections.filter(
+            (selectedDish) => selectedDish.rank !== rank
+          );
+          setUserSelections([
+            ...updatedSelections,
+            { ...dish, rank, username: user.username },
+          ]);
+          setSelectedRank(rank);
+          onSelect({ ...dish, rank, points: rankPoints[rank] });
+        } else {
+          toast.error("Max Limit is 3 for Selecting Dish");
+        }
+      }
+      return rankPoints[rank];
+    } catch (error) {
+      // Handle any errors
+      toast.error(error.message);
     }
   };
 
@@ -53,7 +79,9 @@ const DishCard = ({ dish, onSelect }) => {
         <button
           onClick={() => handleSelect(1)}
           className={`bg-blue-500 text-white px-4 py-2 mt-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 ${
-            selectedRank === 1 ? "opacity-50 cursor-not-allowed" : ""
+            selectedRank === 1 || totalRanksSelected === 3
+              ? "opacity-50 cursor-not-allowed"
+              : ""
           }`}
           disabled={selectedRank !== null && selectedRank !== 1}
         >
@@ -62,7 +90,9 @@ const DishCard = ({ dish, onSelect }) => {
         <button
           onClick={() => handleSelect(2)}
           className={`bg-blue-500 text-white px-4 mt-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 ${
-            selectedRank === 2 ? "opacity-50 cursor-not-allowed" : ""
+            selectedRank === 2 || totalRanksSelected === 3
+              ? "opacity-50 cursor-not-allowed"
+              : ""
           }`}
           disabled={selectedRank !== null && selectedRank !== 2}
         >
@@ -72,12 +102,15 @@ const DishCard = ({ dish, onSelect }) => {
         <button
           onClick={() => handleSelect(3)}
           className={`bg-blue-500 text-white px-4 py-2 mt-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 ${
-            selectedRank === 3 ? "opacity-50 cursor-not-allowed" : ""
+            selectedRank === 3 || totalRanksSelected === 3
+              ? "opacity-50 cursor-not-allowed"
+              : ""
           }`}
           disabled={selectedRank !== null && selectedRank !== 3}
         >
           Rank 3
         </button>
+        <Toaster />
       </div>
     </div>
   );

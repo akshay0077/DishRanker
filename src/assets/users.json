@@ -1,0 +1,23 @@
+[
+    {
+      "username": "admin@gmail.com",
+      "password": "admin",
+      "isAdmin":true
+    },
+    {
+      "username": "user@gmail.com",
+      "password": "user",
+      "isAdmin":false
+    },
+    {
+      "username": "kherakshay@gmail.com",
+      "password": "akshay",
+      "isAdmin":false
+    },
+    {
+      "username": "aceanalytics@gmail.com",
+      "password": "aceanalytics",
+      "isAdmin":true
+    }
+  ]
+  
